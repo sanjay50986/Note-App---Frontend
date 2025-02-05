@@ -1,10 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import ProfileInfo from '../../components/Cards/ProfileInfo'
 import NoteCard from '../../components/Cards/NoteCard'
-import {MdAdd} from 'react-icons/md'
+import { MdAdd } from 'react-icons/md'
+import AddEditNotes from './AddEditNotes'
+import Model from 'react-modal'
 
 const Home = () => {
+
+  const [openAddEditModal, setOpenAddEditModal] = useState({
+    isShown: false,
+    type: "add",
+    date: null
+  });
+
+
   return (
     <>
       <Navbar />
@@ -19,14 +29,29 @@ const Home = () => {
             onDelete={() => { }}
             onPrintNote={() => { }}
           />
-
-          
         </div>
       </div>
 
-      <button className=' w-16 h-16 flex items-center rounded-2xl justify-center bg-primary hover:bg-blue-600 absolute right-10 bottom-10' onClick={() => {}}>
+      <button className=' w-16 h-16 flex items-center rounded-2xl justify-center bg-primary hover:bg-blue-600 absolute right-10 bottom-10' onClick={() => {
+        setOpenAddEditModal({ isShown: true, type: "add", date: null })
+      }}>
         <MdAdd className="text-[32px] text-white" />
       </button>
+
+      <Model
+        isOpen={openAddEditModal}
+        onRequestClose={() => { }}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.2)"
+          },
+        }}
+        className="w-[40%] max-h-3/4 bg-white rounded-md mx-auto mt-14 p-5 overflow-scroll"
+      >
+
+        <AddEditNotes />
+
+      </Model>
     </>
   )
 }
