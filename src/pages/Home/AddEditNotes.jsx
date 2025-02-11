@@ -12,7 +12,7 @@ const AddEditNotes = ({ noteData, type, onClose, getAllNotes, showToastMessage }
     const [content, setcontent] = useState(noteData?.content || "")
     const [tags, setTags] = useState(noteData?.tags || [])
     const [error, seterror] = useState(null)
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false );
 
 
 
