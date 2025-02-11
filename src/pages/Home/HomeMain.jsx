@@ -13,7 +13,7 @@ import NoData from '../../assets/No-Data.svg'
 
 
 
-const Home = () => {
+const HomeMain = () => {
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -229,4 +229,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default HomeMain
