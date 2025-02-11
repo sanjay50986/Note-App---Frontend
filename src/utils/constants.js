@@ -1,0 +1,1 @@
+export const BASE_URL = 'https://notes-mern-w38d.onrender.com'

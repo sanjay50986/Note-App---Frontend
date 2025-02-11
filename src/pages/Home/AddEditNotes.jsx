@@ -1,19 +1,100 @@
 import React, { useState } from 'react'
 import TagInput from '../../components/Input/TagInput'
 import { MdClose } from 'react-icons/md';
+import axiosInstance from '../../utils/axiosInstance';
+import { ClipLoader } from "react-spinners";
 
 
-const AddEditNotes = ({onClose}) => {
 
-    const [title, settitle] = useState("");
-    const [content, setcontent] = useState("")
-    const [tags, setTags] = useState([])
+const AddEditNotes = ({ noteData, type, onClose, getAllNotes, showToastMessage }) => {
+
+    const [title, settitle] = useState(noteData?.title || "");
+    const [content, setcontent] = useState(noteData?.content || "")
+    const [tags, setTags] = useState(noteData?.tags || [])
+    const [error, seterror] = useState(null)
+    const [loading, setLoading] = useState(false);
+
+
+
+    const addNewNote = async () => {
+        try {
+            const response = await axiosInstance.post("/add-note", {
+                title,
+                content,
+                tags,
+            });
+
+            if (response.data && response.data.note) {
+                showToastMessage("Note Added Successfully")
+                getAllNotes()
+                onClose()
+            }
+
+
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                seterror(error.response.data.message)
+
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    const editNote = async () => {
+        const noteId = noteData._id
+
+        try {
+            const response = await axiosInstance.put("/edit-note/" + noteId, {
+                title,
+                content,
+                tags,
+            });
+
+            if (response.data && response.data.note) {
+                showToastMessage("Note Update Successfully")
+                getAllNotes()
+                onClose()
+            }
+
+
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+                seterror(error.response.data.message)
+            }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    const handleAddNote = () => {
+        if (!title) {
+            seterror("Please enter the title")
+        }
+
+        if (!content) {
+            seterror("Please enter the Content")
+        }
+
+        seterror("")
+        setLoading(true)
+
+        if (type === "edit") {
+            editNote()
+        }
+        else {
+            addNewNote()
+        }
+    }
 
     return (
         <div className='relative'>
+
             <button
-            onClick={onClose}
-            className='w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-50'>
+                onClick={onClose}
+                className='w-10 h-10 rounded-full flex items-center justify-center absolute -top-3 -right-3 hover:bg-slate-50'>
                 <MdClose className='text-xl text-slate-400' />
             </button>
 
@@ -42,7 +123,22 @@ const AddEditNotes = ({onClose}) => {
                 <TagInput tags={tags} setTags={setTags} />
             </div>
 
-            <button className='btn-primary font-medium mt-5 p-3'>ADD</button>
+            {error && (
+                <p className='text-red-500 text-xs pt-4'>{error}</p>
+            )}
+
+
+            <button
+                onClick={() => handleAddNote()}
+                className='btn-primary font-medium mt-5 p-3'>
+                    
+                {type === 'edit' ? (
+                    loading ? <ClipLoader color="white" size={18} /> : "UPDATE"
+                ) : (
+                    loading ? <ClipLoader color="white" size={18} /> : "ADD"
+                )}
+
+            </button>
 
         </div>
     )

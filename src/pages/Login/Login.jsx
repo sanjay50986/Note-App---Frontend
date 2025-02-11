@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PasswordInput from '../../components/Input/PasswordInput'
 import Navbar from '../../components/Navbar/Navbar'
 import { validateEmail } from '../../utils/helper'
+import axiosInstance from '../../utils/axiosInstance'
+import { ClipLoader } from "react-spinners";
+
 
 const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setpassword] = useState("");
   const [error, seterror] = useState("")
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -21,12 +26,38 @@ const Login = () => {
     }
 
 
-    if(!password) {
+    if (!password) {
       seterror("Please enter a password")
       return;
     }
 
     seterror("")
+    setLoading(true);
+
+    try {
+
+      const response = await axiosInstance.post("/login", {
+        email: email,
+        password: password
+      });
+
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken)
+        navigate("/dashboard");
+
+      }
+
+    } catch (error) {
+
+      if (error.response && error.response.data && error.response.data.message) {
+        seterror(error.response.data.message)
+      } else {
+        seterror("An unexpected error accurred, Please try again.")
+      }
+
+    } finally {
+      setLoading(false)
+    }
   };
 
 
@@ -51,11 +82,11 @@ const Login = () => {
               onChange={(e) => setpassword(e.target.value)}
             />
 
-             {error &&
-               <p className='text-red-500 text-xs pb-1'>{error}</p>
-             }
+            {error &&
+              <p className='text-red-500 text-xs pb-1'>{error}</p>
+            }
 
-            <button type='submit' className='btn-primary'>Login</button>
+            <button type='submit' className='btn-primary'>{loading ? <ClipLoader color="white" size={18}/> : "Log In"}</button>
 
             <p className='text-sm text-center mt-4'>
               Not registered yet?{" "}

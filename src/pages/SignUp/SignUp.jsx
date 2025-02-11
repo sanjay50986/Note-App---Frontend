@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar/Navbar'
 import PasswordInput from '../../components/Input/PasswordInput'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { validateEmail } from '../../utils/helper'
+import axiosInstance from '../../utils/axiosInstance'
+import { ClipLoader } from "react-spinners";
+
 
 
 const SignUp = () => {
@@ -11,6 +14,9 @@ const SignUp = () => {
   const [email, setemail] = useState("")
   const [password, setpassword] = useState("")
   const [error, seterror] = useState(null)
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
+
 
   const handleSignup = async (e) => {
     e.preventDefault()
@@ -30,6 +36,34 @@ const SignUp = () => {
     }
 
     seterror(" ")
+    setLoading(true);
+
+
+    try {
+      const response = await axiosInstance.post("/create-account", {
+        fullName: name,
+        email: email,
+        password: password
+      })
+
+      if (response.data && response.data.error) {
+        seterror(response.data.message)
+        return
+      }
+
+      if (response.data && response.data.accessToken) {
+        localStorage.setItem("token", response.data.accessToken);
+        navigate("/dashboard")
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        seterror(error.response.data.message)
+      } else {
+        seterror("An unexpected error occurred, Please try again.")
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -62,11 +96,11 @@ const SignUp = () => {
               <p className='text-red-500 text-xs pb-1'>{error}</p>
             }
 
-            <button type='submit' className='btn-primary'>Create Account</button>
+            <button type='submit' className='btn-primary'>{loading ? <ClipLoader color="white" size={18} /> : "Create Account"}</button>
 
             <p className='text-sm text-center mt-4'>
               Already have an account?{" "}
-              <Link to="/login" className='font-medium text-primary underline'>
+              <Link to="/" className='font-medium text-primary underline'>
                 Login
               </Link>
             </p>
