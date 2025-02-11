@@ -6,8 +6,6 @@ import { validateEmail } from '../../utils/helper'
 import axiosInstance from '../../utils/axiosInstance'
 import { ClipLoader } from "react-spinners";
 
-
-
 const SignUp = () => {
 
   const [name, setname] = useState("")
